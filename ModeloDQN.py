@@ -1,8 +1,8 @@
 import os
-import sys 
+import sys
 import pdb
 import gym
-import time 
+import time
 import random
 import torch
 import numpy as np
@@ -13,17 +13,19 @@ import matplotlib.pyplot as plt
 from gym.envs.toy_text import blackjack
 
 # Classe para o modelo Deep Q-Network
+
+
 class ModeloDQN(nn.Module):
-    
+
     # Método construtor da classe
-    def __init__(self, 
-                 ideal_sol, 
-                 number_of_states = 3, 
-                 number_of_actions = 2, 
-                 weight_norm = False):
-        
+    def __init__(self,
+                 ideal_sol,
+                 number_of_states=3,
+                 number_of_actions=2,
+                 weight_norm=False):
+
         super(ModeloDQN, self).__init__()
-        
+
         # Inicializa os atributos do modelo
         self.current_episode = 0
         self.fc1 = nn.Linear(number_of_states, 96)
@@ -39,7 +41,7 @@ class ModeloDQN(nn.Module):
             self.fc1 = nn.utils.weight_norm(self.fc1)
             self.fc2 = nn.utils.weight_norm(self.fc2)
             self.fc3 = nn.utils.weight_norm(self.fc3)
-          
+
         # Aplica a solução ideal
         self.x_soft_hand = ideal_sol[0]
         self.x_hard_hand = ideal_sol[1]
@@ -56,4 +58,4 @@ class ModeloDQN(nn.Module):
         out = self.relu3(out)
         out = self.fc4(out)
 
-        return out   
+        return out
