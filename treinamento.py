@@ -12,14 +12,49 @@ import matplotlib
 import matplotlib.pyplot as plt
 from gym.envs.toy_text import blackjack
 
-import hiperparametros
 import functions_blackjack
 import memoria_agente
+
+# Hiperparâmetros para treinamento do Modelo
+NUM_ACOES = 2
+NUM_ESTADOS = 3
+EPSILON_INITIAL = 1
+EPSILON_FINAL = 0.01
+EPSILON_DECAY = 0.9  
+GAMMA = 0.999  
+REPLAY_MEMORY_SIZE = 5000
+MINIBATCH_SIZE = 256
+STEPS_PER_EPISODE = 100
+TOTAL_EPISODES = 50_000
+LEARNING_RATE = 1e-5
+
+# Dicionário de hiperparâmetros
+hyperparams_dict = {'NUM_ACOES': NUM_ACOES,
+                    'NUM_ESTADOS': NUM_ESTADOS,
+                    'EPSILON_FINAL': EPSILON_FINAL,
+                    'EPSILON_DECAY': EPSILON_DECAY,
+                    'GAMMA': GAMMA,
+                    'REPLAY_MEMORY_SIZE': REPLAY_MEMORY_SIZE,
+                    'MINIBATCH_SIZE': MINIBATCH_SIZE,
+                    'STEPS_PER_EPISODE': STEPS_PER_EPISODE,
+                    'TOTAL_EPISODES': TOTAL_EPISODES,
+                    'LEARNING_RATE': LEARNING_RATE,
+                   }
 
 env = gym.make('Blackjack-v1')
 
 # Definimos se usaremos GPU ou CPU
+
+#Para Rodar na GPU e se "ausente" rodar na CPU
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') 
+
+# Para rodar na GPU
+# device = torch.device('cuda') 
+
+# Para rodar na CPU                                        
+# device = torch.device('cpu')                                             
+
+save_dir = './loggers'
 
 # Função para o treinamento de um único episódio
 def treinamento_episodio(model, optimizer, memory, loss_func, epsilon, n_steps, loss_logger):
@@ -69,7 +104,7 @@ def treinamento_agente(model,
     
     # Condicional
     if exp_epsilon_decay:
-        epsilon_decrements = [hiperparametros.EPSILON_INITIAL]
+        epsilon_decrements = [EPSILON_INITIAL]
         found_eps_min = False
         
         for i in range(TOTAL_EPISODES):
@@ -84,7 +119,7 @@ def treinamento_agente(model,
                 epsilon_decrements.append(epsilon_decrements[i])
    
     else:
-        epsilon_decrements = np.linspace(hiperparametros.EPSILON_INITIAL, hiperparametros.EPSILON_FINAL, n_episodes+1)
+        epsilon_decrements = np.linspace(EPSILON_INITIAL, EPSILON_FINAL, n_episodes+1)
 
     # Registra o início do treinamento
     start_time = time.time()
@@ -117,7 +152,7 @@ def treinamento_agente(model,
                         'model_state_dict': model.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
                         'loggers': loggers,
-                        'hyperparams_dict': hiperparametros.hyperparams_dict,
+                        'hyperparams_dict': hyperparams_dict,
                         'episode_idx': episode_idx}, 
                        save_path)
             print('Modelo Salvo')
@@ -293,7 +328,7 @@ def treina_modelo(model, save_path):
     model.optimizer = optim.Adam(model.parameters(), lr = LEARNING_RATE)
     
     # Memória
-    memory = memoria_agente.Memoria(hiperparametros.REPLAY_MEMORY_SIZE)
+    memory = memoria_agente.Memoria(REPLAY_MEMORY_SIZE)
     
     # Loss
     loss_func = nn.MSELoss()
