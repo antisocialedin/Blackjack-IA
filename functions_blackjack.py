@@ -246,3 +246,4 @@ def mostra_acoes_agente(hard_preds,
 
     fig.tight_layout()
     plt.show()
+
